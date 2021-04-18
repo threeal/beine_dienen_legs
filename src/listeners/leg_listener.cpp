@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <bein_bridge/leg_listener.hpp>
+#include <bein_bridge/listeners/leg_listener.hpp>
 
 #include <memory>
 #include <string>

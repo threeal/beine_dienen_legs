@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <bein_bridge/bein_listener.hpp>
+#include <bein_bridge/bridge.hpp>
 
 #include <memory>
 #include <string>
@@ -28,7 +28,7 @@ namespace bein_bridge
 
 using namespace std::chrono_literals;
 
-BeinListener::BeinListener(std::string node_name, int leg_port, int voice_port)
+Bridge::Bridge(std::string node_name, int leg_port, int voice_port)
 {
   // Initialize the node
   {
@@ -70,7 +70,7 @@ BeinListener::BeinListener(std::string node_name, int leg_port, int voice_port)
   }
 }
 
-bool BeinListener::connect()
+bool Bridge::connect()
 {
   if (!leg_listener->connect()) {
     RCLCPP_ERROR(node->get_logger(), "Failed to connect the leg listener!");
@@ -87,7 +87,7 @@ bool BeinListener::connect()
   return true;
 }
 
-bool BeinListener::disconnect()
+bool Bridge::disconnect()
 {
   if (!leg_listener->disconnect()) {
     RCLCPP_ERROR(node->get_logger(), "Failed to disconnect the leg listener!");
@@ -104,7 +104,7 @@ bool BeinListener::disconnect()
   return true;
 }
 
-rclcpp::Node::SharedPtr BeinListener::get_node()
+rclcpp::Node::SharedPtr Bridge::get_node()
 {
   return node;
 }

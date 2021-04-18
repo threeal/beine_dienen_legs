@@ -18,34 +18,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <bein_bridge/bein_listener.hpp>
+#ifndef BEIN_BRIDGE__LISTENERS__VOICE_LISTENER_HPP_
+#define BEIN_BRIDGE__LISTENERS__VOICE_LISTENER_HPP_
+
+#include <housou/housou.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
+#include <string>
 
-int main(int argc, char ** argv)
+namespace bein_bridge
 {
-  if (argc < 3) {
-    std::cerr << "Usage: ros2 run bein_bridge bein_listener <leg_port> <voice_port>" << std::endl;
-    return 1;
-  }
 
-  int leg_port = atoi(argv[1]);
-  int voice_port = atoi(argv[2]);
+class VoiceListener
+{
+public:
+  VoiceListener(rclcpp::Node::SharedPtr node, int listen_port);
+  ~VoiceListener();
 
-  rclcpp::init(argc, argv);
+  bool connect();
+  bool disconnect();
 
-  auto bein_listener = std::make_shared<bein_bridge::BeinListener>(
-    "bein", leg_port, voice_port
-  );
+  void listen_process();
 
-  if (bein_listener->connect()) {
-    rclcpp::spin(bein_listener->get_node());
-  } else {
-    return 1;
-  }
+private:
+  rclcpp::Node::SharedPtr node;
 
-  rclcpp::shutdown();
+  std::shared_ptr<housou::StringListener> listener;
 
-  return 0;
-}
+  std::string command;
+};
+
+}  // namespace bein_bridge
+
+#endif  // BEIN_BRIDGE__LISTENERS__VOICE_LISTENER_HPP_

@@ -18,54 +18,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef BEIN_BRIDGE__LEG_LISTENER_HPP_
-#define BEIN_BRIDGE__LEG_LISTENER_HPP_
-
-#include <bein_interfaces/bein_interfaces.hpp>
-#include <housou/housou.hpp>
+#include <bein_bridge/bein_bridge.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 
-namespace bein_bridge
+int main(int argc, char ** argv)
 {
+  if (argc < 3) {
+    std::cerr << "Usage: ros2 run bein_bridge bridge <leg_port> <voice_port>" << std::endl;
+    return 1;
+  }
 
-using OrientationMsg = bein_interfaces::msg::Orientation;
-using PositionMsg = bein_interfaces::msg::Position;
+  int leg_port = atoi(argv[1]);
+  int voice_port = atoi(argv[2]);
 
-class LegListener
-{
-public:
-  LegListener(rclcpp::Node::SharedPtr node, int listen_port);
-  ~LegListener();
+  rclcpp::init(argc, argv);
 
-  bool connect();
-  bool disconnect();
+  auto bridge = std::make_shared<bein_bridge::Bridge>(
+    "bein", leg_port, voice_port
+  );
 
-  void listen_process();
+  if (bridge->connect()) {
+    rclcpp::spin(bridge->get_node());
+  } else {
+    return 1;
+  }
 
-private:
-  rclcpp::Node::SharedPtr node;
+  rclcpp::shutdown();
 
-  rclcpp::Publisher<PositionMsg>::SharedPtr position_publisher;
-  rclcpp::Publisher<OrientationMsg>::SharedPtr orientation_publisher;
-
-  std::shared_ptr<housou::StringListener> listener;
-
-  double x_position;
-  double y_position;
-  double z_position;
-
-  double x_orientation;
-  double y_orientation;
-  double z_orientation;
-
-  double a_adc_read;
-  double b_adc_read;
-  double c_adc_read;
-  double d_adc_read;
-};
-
-}  // namespace bein_bridge
-
-#endif  // BEIN_BRIDGE__LEG_LISTENER_HPP_
+  return 0;
+}
