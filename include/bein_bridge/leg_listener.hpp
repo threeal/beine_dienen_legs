@@ -21,6 +21,7 @@
 #ifndef BEIN_BRIDGE__LEG_LISTENER_HPP_
 #define BEIN_BRIDGE__LEG_LISTENER_HPP_
 
+#include <bein_interfaces/bein_interfaces.hpp>
 #include <housou/housou.hpp>
 #include <rclcpp/rclcpp.hpp>
 
@@ -29,6 +30,9 @@
 
 namespace bein_bridge
 {
+
+using OrientationMsg = bein_interfaces::msg::Orientation;
+using PositionMsg = bein_interfaces::msg::Position;
 
 class LegListener
 {
@@ -43,6 +47,9 @@ public:
 
 private:
   rclcpp::Node::SharedPtr node;
+
+  rclcpp::Publisher<PositionMsg>::SharedPtr position_publisher;
+  rclcpp::Publisher<OrientationMsg>::SharedPtr orientation_publisher;
 
   rclcpp::TimerBase::SharedPtr listen_timer;
 

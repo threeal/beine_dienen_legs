@@ -15,4 +15,4 @@ jobs:
         with:
           ros2-distro: foxy
           apt-packages: git
-          pre-build: git clone https://github.com/ichiro-its/housou /ws/housou
+          pre-build: git clone https://github.com/ichiro-its/housou /ws/housou && git clone https://github.com/threeal/bein_interfaces /ws/bein_interfaces
