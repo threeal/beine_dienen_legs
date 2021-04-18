@@ -18,33 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <bein_bridge/voice_listener.hpp>
+#ifndef BEIN_BRIDGE__BEIN_LISTENER_HPP_
+#define BEIN_BRIDGE__BEIN_LISTENER_HPP_
+
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
+#include <string>
 
-int main(int argc, char ** argv)
+#include "./leg_listener.hpp"
+#include "./voice_listener.hpp"
+
+namespace bein_bridge
 {
-  if (argc < 2) {
-    std::cerr << "Usage: ros2 run bein_bridge voice_listener <listen_port>" << std::endl;
-    return 1;
-  }
 
-  int listen_port = atoi(argv[1]);
+class BeinListener
+{
+public:
+  BeinListener(std::string node_name, int leg_port, int voice_port);
 
-  rclcpp::init(argc, argv);
+  bool connect();
+  bool disconnect();
 
-  auto voice_listener = std::make_shared<bein_bridge::VoiceListener>(
-    "voice_listener", listen_port
-  );
+  rclcpp::Node::SharedPtr get_node();
 
-  if (voice_listener->connect()) {
-    rclcpp::spin(voice_listener->get_node());
-  } else {
-    return 1;
-  }
+private:
+  rclcpp::Node::SharedPtr node;
 
-  rclcpp::shutdown();
+  rclcpp::TimerBase::SharedPtr listen_timer;
 
-  return 0;
-}
+  std::shared_ptr<LegListener> leg_listener;
+  std::shared_ptr<VoiceListener> voice_listener;
+};
+
+}  // namespace bein_bridge
+
+#endif  // BEIN_BRIDGE__BEIN_LISTENER_HPP_

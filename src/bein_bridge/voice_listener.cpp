@@ -28,37 +28,11 @@ namespace bein_bridge
 
 using namespace std::chrono_literals;
 
-VoiceListener::VoiceListener(std::string node_name, int listen_port)
-: command("")
+VoiceListener::VoiceListener(rclcpp::Node::SharedPtr node, int listen_port)
+: node(node),
+  listener(std::make_shared<housou::StringListener>(listen_port)),
+  command("")
 {
-  // Initialize the node
-  {
-    node = std::make_shared<rclcpp::Node>(node_name);
-
-    RCLCPP_INFO_STREAM(
-      node->get_logger(),
-      "Node initialized with name " << node->get_name() << "!");
-
-    // Initialize the listen timer
-    {
-      listen_timer = node->create_wall_timer(
-        10ms, [this]() {
-          command = listener->receive(32);
-        }
-      );
-
-      listen_timer->cancel();
-    }
-  }
-
-  // Initialize the listener
-  {
-    listener = std::make_shared<housou::StringListener>(listen_port);
-
-    RCLCPP_INFO_STREAM(
-      node->get_logger(),
-      "Listener initialized on port " << listener->get_port() << "!");
-  }
 }
 
 VoiceListener::~VoiceListener()
@@ -68,31 +42,21 @@ VoiceListener::~VoiceListener()
 
 bool VoiceListener::connect()
 {
-  if (!listener->connect()) {
-    RCLCPP_ERROR(node->get_logger(), "Failed to connect the listener!");
-    return false;
-  }
-
-  listen_timer->reset();
-
-  return true;
+  return listener->connect();
 }
 
 bool VoiceListener::disconnect()
 {
-  if (!listener->disconnect()) {
-    RCLCPP_ERROR(node->get_logger(), "Failed to disconnect the listener!");
-    return false;
-  }
-
-  listen_timer->cancel();
-
-  return true;
+  return listener->disconnect();
 }
 
-rclcpp::Node::SharedPtr VoiceListener::get_node()
+void VoiceListener::listen_process()
 {
-  return node;
+  auto message = listener->receive(32);
+
+  if (message.size() > 0) {
+    command = message;
+  }
 }
 
 }  // namespace bein_bridge

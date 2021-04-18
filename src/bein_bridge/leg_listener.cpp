@@ -26,10 +26,10 @@
 namespace bein_bridge
 {
 
-using namespace std::chrono_literals;
-
-LegListener::LegListener(std::string node_name, int listen_port)
-: x_position(0.0),
+LegListener::LegListener(rclcpp::Node::SharedPtr node, int listen_port)
+: node(node),
+  listener(std::make_shared<housou::StringListener>(listen_port)),
+  x_position(0.0),
   y_position(0.0),
   z_position(0.0),
   x_orientation(0.0),
@@ -40,105 +40,26 @@ LegListener::LegListener(std::string node_name, int listen_port)
   c_adc_read(0.0),
   d_adc_read(0.0)
 {
-  // Initialize the node
+  // Initialize the position publisher
   {
-    node = std::make_shared<rclcpp::Node>(node_name);
+    position_publisher = node->create_publisher<PositionMsg>(
+      std::string(node->get_name()) + "/position", 10
+    );
 
     RCLCPP_INFO_STREAM(
       node->get_logger(),
-      "Node initialized with name " << node->get_name() << "!");
-
-    // Initialize the position publisher
-    {
-      position_publisher = node->create_publisher<PositionMsg>(
-        std::string(node->get_name()) + "/position", 10
-      );
-
-      RCLCPP_INFO_STREAM(
-        node->get_logger(),
-        "Position publisher initialized on " << position_publisher->get_topic_name() << "!");
-    }
-
-    // Initialize the orientation publisher
-    {
-      orientation_publisher = node->create_publisher<OrientationMsg>(
-        std::string(node->get_name()) + "/orientation", 10
-      );
-
-      RCLCPP_INFO_STREAM(
-        node->get_logger(),
-        "Orientation publisher initialized on " << orientation_publisher->get_topic_name() << "!");
-    }
-
-    // Initialize the listen timer
-    {
-      listen_timer = node->create_wall_timer(
-        10ms, [this]() {
-          auto message = listener->receive(64, ",");
-
-          try {
-            size_t i = 0;
-
-            // Get position data
-            {
-              x_position = stod(message[i++]);
-              y_position = stod(message[i++]);
-              z_position = stod(message[i++]);
-
-              // Publish position data
-              {
-                PositionMsg msg;
-
-                msg.x = x_position;
-                msg.y = y_position;
-                msg.z = z_position;
-
-                position_publisher->publish(msg);
-              }
-            }
-
-            // Get orientation data
-            {
-              x_orientation = stod(message[i++]);
-              y_orientation = stod(message[i++]);
-              z_orientation = stod(message[i++]);
-
-              // Publish orientation data
-              {
-                OrientationMsg msg;
-
-                msg.x = x_orientation;
-                msg.y = y_orientation;
-                msg.z = z_orientation;
-
-                orientation_publisher->publish(msg);
-              }
-            }
-
-            // Get ADC data
-            {
-              a_adc_read = stod(message[i++]);
-              b_adc_read = stod(message[i++]);
-              c_adc_read = stod(message[i++]);
-              d_adc_read = stod(message[i++]);
-            }
-          } catch (const std::out_of_range & err) {
-            RCLCPP_WARN_STREAM(node->get_logger(), "Not all values are received! " << err.what());
-          }
-        }
-      );
-
-      listen_timer->cancel();
-    }
+      "Position publisher initialized on " << position_publisher->get_topic_name() << "!");
   }
 
-  // Initialize the listener
+  // Initialize the orientation publisher
   {
-    listener = std::make_shared<housou::StringListener>(listen_port);
+    orientation_publisher = node->create_publisher<OrientationMsg>(
+      std::string(node->get_name()) + "/orientation", 10
+    );
 
     RCLCPP_INFO_STREAM(
       node->get_logger(),
-      "Listener initialized on port " << listener->get_port() << "!");
+      "Orientation publisher initialized on " << orientation_publisher->get_topic_name() << "!");
   }
 }
 
@@ -149,31 +70,69 @@ LegListener::~LegListener()
 
 bool LegListener::connect()
 {
-  if (!listener->connect()) {
-    RCLCPP_ERROR(node->get_logger(), "Failed to connect the listener!");
-    return false;
-  }
-
-  listen_timer->reset();
-
-  return true;
+  return listener->connect();
 }
 
 bool LegListener::disconnect()
 {
-  if (!listener->disconnect()) {
-    RCLCPP_ERROR(node->get_logger(), "Failed to disconnect the listener!");
-    return false;
-  }
-
-  listen_timer->cancel();
-
-  return true;
+  return listener->disconnect();
 }
 
-rclcpp::Node::SharedPtr LegListener::get_node()
+void LegListener::listen_process()
 {
-  return node;
+  auto message = listener->receive(64, ",");
+
+  if (message.size() > 0) {
+    try {
+      size_t i = 0;
+
+      // Get position data
+      {
+        x_position = stod(message[i++]);
+        y_position = stod(message[i++]);
+        z_position = stod(message[i++]);
+
+        // Publish position data
+        {
+          PositionMsg msg;
+
+          msg.x = x_position;
+          msg.y = y_position;
+          msg.z = z_position;
+
+          position_publisher->publish(msg);
+        }
+      }
+
+      // Get orientation data
+      {
+        x_orientation = stod(message[i++]);
+        y_orientation = stod(message[i++]);
+        z_orientation = stod(message[i++]);
+
+        // Publish orientation data
+        {
+          OrientationMsg msg;
+
+          msg.x = x_orientation;
+          msg.y = y_orientation;
+          msg.z = z_orientation;
+
+          orientation_publisher->publish(msg);
+        }
+      }
+
+      // Get ADC data
+      {
+        a_adc_read = stod(message[i++]);
+        b_adc_read = stod(message[i++]);
+        c_adc_read = stod(message[i++]);
+        d_adc_read = stod(message[i++]);
+      }
+    } catch (const std::out_of_range & err) {
+      RCLCPP_WARN_STREAM(node->get_logger(), "Not all values are received! " << err.what());
+    }
+  }
 }
 
 }  // namespace bein_bridge

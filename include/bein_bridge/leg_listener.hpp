@@ -26,7 +26,6 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
-#include <string>
 
 namespace bein_bridge
 {
@@ -37,21 +36,19 @@ using PositionMsg = bein_interfaces::msg::Position;
 class LegListener
 {
 public:
-  LegListener(std::string node_name, int listen_port);
+  LegListener(rclcpp::Node::SharedPtr node, int listen_port);
   ~LegListener();
 
   bool connect();
   bool disconnect();
 
-  rclcpp::Node::SharedPtr get_node();
+  void listen_process();
 
 private:
   rclcpp::Node::SharedPtr node;
 
   rclcpp::Publisher<PositionMsg>::SharedPtr position_publisher;
   rclcpp::Publisher<OrientationMsg>::SharedPtr orientation_publisher;
-
-  rclcpp::TimerBase::SharedPtr listen_timer;
 
   std::shared_ptr<housou::StringListener> listener;
 

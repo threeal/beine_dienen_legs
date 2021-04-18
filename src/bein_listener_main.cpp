@@ -18,28 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <bein_bridge/leg_listener.hpp>
+#include <bein_bridge/bein_listener.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 
 int main(int argc, char ** argv)
 {
-  if (argc < 2) {
-    std::cerr << "Usage: ros2 run bein_bridge leg_listener <listen_port>" << std::endl;
+  if (argc < 3) {
+    std::cerr << "Usage: ros2 run bein_bridge bein_listener <leg_port> <voice_port>" << std::endl;
     return 1;
   }
 
-  int listen_port = atoi(argv[1]);
+  int leg_port = atoi(argv[1]);
+  int voice_port = atoi(argv[2]);
 
   rclcpp::init(argc, argv);
 
-  auto leg_listener = std::make_shared<bein_bridge::LegListener>(
-    "leg_listener", listen_port
+  auto bein_listener = std::make_shared<bein_bridge::BeinListener>(
+    "bein", leg_port, voice_port
   );
 
-  if (leg_listener->connect()) {
-    rclcpp::spin(leg_listener->get_node());
+  if (bein_listener->connect()) {
+    rclcpp::spin(bein_listener->get_node());
   } else {
     return 1;
   }
