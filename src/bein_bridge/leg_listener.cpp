@@ -48,6 +48,28 @@ LegListener::LegListener(std::string node_name, int listen_port)
       node->get_logger(),
       "Node initialized with name " << node->get_name() << "!");
 
+    // Initialize the position publisher
+    {
+      position_publisher = node->create_publisher<PositionMsg>(
+        std::string(node->get_name()) + "/position", 10
+      );
+
+      RCLCPP_INFO_STREAM(
+        node->get_logger(),
+        "Position publisher initialized on " << position_publisher->get_topic_name() << "!");
+    }
+
+    // Initialize the orientation publisher
+    {
+      orientation_publisher = node->create_publisher<OrientationMsg>(
+        std::string(node->get_name()) + "/orientation", 10
+      );
+
+      RCLCPP_INFO_STREAM(
+        node->get_logger(),
+        "Orientation publisher initialized on " << orientation_publisher->get_topic_name() << "!");
+    }
+
     // Initialize the listen timer
     {
       listen_timer = node->create_wall_timer(
@@ -57,18 +79,49 @@ LegListener::LegListener(std::string node_name, int listen_port)
           try {
             size_t i = 0;
 
-            x_position = stod(message[i++]);
-            y_position = stod(message[i++]);
-            z_position = stod(message[i++]);
+            // Get position data
+            {
+              x_position = stod(message[i++]);
+              y_position = stod(message[i++]);
+              z_position = stod(message[i++]);
 
-            x_orientation = stod(message[i++]);
-            y_orientation = stod(message[i++]);
-            z_orientation = stod(message[i++]);
+              // Publish position data
+              {
+                PositionMsg msg;
 
-            a_adc_read = stod(message[i++]);
-            b_adc_read = stod(message[i++]);
-            c_adc_read = stod(message[i++]);
-            d_adc_read = stod(message[i++]);
+                msg.x = x_position;
+                msg.y = y_position;
+                msg.z = z_position;
+
+                position_publisher->publish(msg);
+              }
+            }
+
+            // Get orientation data
+            {
+              x_orientation = stod(message[i++]);
+              y_orientation = stod(message[i++]);
+              z_orientation = stod(message[i++]);
+
+              // Publish orientation data
+              {
+                OrientationMsg msg;
+
+                msg.x = x_orientation;
+                msg.y = y_orientation;
+                msg.z = z_orientation;
+
+                orientation_publisher->publish(msg);
+              }
+            }
+
+            // Get ADC data
+            {
+              a_adc_read = stod(message[i++]);
+              b_adc_read = stod(message[i++]);
+              c_adc_read = stod(message[i++]);
+              d_adc_read = stod(message[i++]);
+            }
           } catch (const std::out_of_range & err) {
             RCLCPP_WARN_STREAM(node->get_logger(), "Not all values are received! " << err.what());
           }
