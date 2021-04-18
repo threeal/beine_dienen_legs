@@ -22,7 +22,7 @@
 #define BEIN_BRIDGE__BEIN_BRIDGE_HPP_
 
 #include "./listeners/leg_listener.hpp"
-#include "./listeners/leg_listener.hpp"
+#include "./listeners/voice_listener.hpp"
 
 #include "./bridge.hpp"
 
