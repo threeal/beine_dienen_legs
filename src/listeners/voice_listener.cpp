@@ -18,33 +18,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <bein_bridge/leg_listener.hpp>
-#include <rclcpp/rclcpp.hpp>
+#include <bein_bridge/listeners/voice_listener.hpp>
 
 #include <memory>
+#include <string>
 
-int main(int argc, char ** argv)
+namespace bein_bridge
 {
-  if (argc < 2) {
-    std::cerr << "Usage: ros2 run bein_bridge leg_listener <listen_port>" << std::endl;
-    return 1;
-  }
 
-  int listen_port = atoi(argv[1]);
+using namespace std::chrono_literals;
 
-  rclcpp::init(argc, argv);
-
-  auto leg_listener = std::make_shared<bein_bridge::LegListener>(
-    "leg_listener", listen_port
-  );
-
-  if (leg_listener->connect()) {
-    rclcpp::spin(leg_listener->get_node());
-  } else {
-    return 1;
-  }
-
-  rclcpp::shutdown();
-
-  return 0;
+VoiceListener::VoiceListener(rclcpp::Node::SharedPtr node, int listen_port)
+: node(node),
+  listener(std::make_shared<housou::StringListener>(listen_port)),
+  command("")
+{
 }
+
+VoiceListener::~VoiceListener()
+{
+  disconnect();
+}
+
+bool VoiceListener::connect()
+{
+  return listener->connect();
+}
+
+bool VoiceListener::disconnect()
+{
+  return listener->disconnect();
+}
+
+void VoiceListener::listen_process()
+{
+  auto message = listener->receive(32);
+
+  if (message.size() > 0) {
+    command = message;
+  }
+}
+
+}  // namespace bein_bridge

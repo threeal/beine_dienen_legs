@@ -20,8 +20,9 @@ find_package(housou REQUIRED)
 find_package(rclcpp REQUIRED)
 
 add_library(${PROJECT_NAME}
-  "src/bein_bridge/leg_listener.cpp"
-  "src/bein_bridge/voice_listener.cpp")
+  "src/listeners/leg_listener.cpp"
+  "src/listeners/voice_listener.cpp"
+  "src/bridge.cpp")
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -37,23 +38,15 @@ install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION "lib"
   RUNTIME DESTINATION "bin")
 
-add_executable(leg_listener "src/leg_listener_main.cpp")
+add_executable(bridge "bin/bridge.cpp")
 
-target_include_directories(leg_listener PUBLIC
+target_include_directories(bridge PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(leg_listener ${PROJECT_NAME})
+target_link_libraries(bridge ${PROJECT_NAME})
 
-add_executable(voice_listener "src/voice_listener_main.cpp")
-
-target_include_directories(voice_listener PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-
-target_link_libraries(voice_listener ${PROJECT_NAME})
-
-install(TARGETS leg_listener voice_listener
+install(TARGETS bridge
   DESTINATION "lib/${PROJECT_NAME}")
 
 if(BUILD_TESTING)

@@ -18,39 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef BEIN_BRIDGE__VOICE_LISTENER_HPP_
-#define BEIN_BRIDGE__VOICE_LISTENER_HPP_
+#ifndef BEIN_BRIDGE__BEIN_BRIDGE_HPP_
+#define BEIN_BRIDGE__BEIN_BRIDGE_HPP_
 
-#include <housou/housou.hpp>
-#include <rclcpp/rclcpp.hpp>
+#include "./listeners/leg_listener.hpp"
+#include "./listeners/voice_listener.hpp"
 
-#include <memory>
-#include <string>
+#include "./bridge.hpp"
 
-namespace bein_bridge
-{
-
-class VoiceListener
-{
-public:
-  VoiceListener(std::string node_name, int listen_port);
-  ~VoiceListener();
-
-  bool connect();
-  bool disconnect();
-
-  rclcpp::Node::SharedPtr get_node();
-
-private:
-  rclcpp::Node::SharedPtr node;
-
-  rclcpp::TimerBase::SharedPtr listen_timer;
-
-  std::shared_ptr<housou::StringListener> listener;
-
-  std::string command;
-};
-
-}  // namespace bein_bridge
-
-#endif  // BEIN_BRIDGE__VOICE_LISTENER_HPP_
+#endif  // BEIN_BRIDGE__BEIN_BRIDGE_HPP_

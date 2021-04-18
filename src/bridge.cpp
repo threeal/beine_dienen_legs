@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <bein_bridge/voice_listener.hpp>
+#include <bein_bridge/bridge.hpp>
 
 #include <memory>
 #include <string>
@@ -28,8 +28,7 @@ namespace bein_bridge
 
 using namespace std::chrono_literals;
 
-VoiceListener::VoiceListener(std::string node_name, int listen_port)
-: command("")
+Bridge::Bridge(std::string node_name, int leg_port, int voice_port)
 {
   // Initialize the node
   {
@@ -39,37 +38,47 @@ VoiceListener::VoiceListener(std::string node_name, int listen_port)
       node->get_logger(),
       "Node initialized with name " << node->get_name() << "!");
 
+    // Initialize the leg listener
+    {
+      leg_listener = std::make_shared<LegListener>(node, leg_port);
+
+      RCLCPP_INFO_STREAM(
+        node->get_logger(),
+        "Leg listener initialized on port " << leg_port << "!");
+    }
+
+    // Initialize the voice listener
+    {
+      voice_listener = std::make_shared<VoiceListener>(node, voice_port);
+
+      RCLCPP_INFO_STREAM(
+        node->get_logger(),
+        "Voice listener initialized on port " << voice_port << "!");
+    }
+
     // Initialize the listen timer
     {
       listen_timer = node->create_wall_timer(
         10ms, [this]() {
-          command = listener->receive(32);
+          leg_listener->listen_process();
+          voice_listener->listen_process();
         }
       );
 
       listen_timer->cancel();
     }
   }
+}
 
-  // Initialize the listener
-  {
-    listener = std::make_shared<housou::StringListener>(listen_port);
-
-    RCLCPP_INFO_STREAM(
-      node->get_logger(),
-      "Listener initialized on port " << listener->get_port() << "!");
+bool Bridge::connect()
+{
+  if (!leg_listener->connect()) {
+    RCLCPP_ERROR(node->get_logger(), "Failed to connect the leg listener!");
+    return false;
   }
-}
 
-VoiceListener::~VoiceListener()
-{
-  disconnect();
-}
-
-bool VoiceListener::connect()
-{
-  if (!listener->connect()) {
-    RCLCPP_ERROR(node->get_logger(), "Failed to connect the listener!");
+  if (!voice_listener->connect()) {
+    RCLCPP_ERROR(node->get_logger(), "Failed to connect the voice listener!");
     return false;
   }
 
@@ -78,10 +87,15 @@ bool VoiceListener::connect()
   return true;
 }
 
-bool VoiceListener::disconnect()
+bool Bridge::disconnect()
 {
-  if (!listener->disconnect()) {
-    RCLCPP_ERROR(node->get_logger(), "Failed to disconnect the listener!");
+  if (!leg_listener->disconnect()) {
+    RCLCPP_ERROR(node->get_logger(), "Failed to disconnect the leg listener!");
+    return false;
+  }
+
+  if (!voice_listener->disconnect()) {
+    RCLCPP_ERROR(node->get_logger(), "Failed to disconnect the voice listener!");
     return false;
   }
 
@@ -90,7 +104,7 @@ bool VoiceListener::disconnect()
   return true;
 }
 
-rclcpp::Node::SharedPtr VoiceListener::get_node()
+rclcpp::Node::SharedPtr Bridge::get_node()
 {
   return node;
 }
