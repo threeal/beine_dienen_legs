@@ -30,7 +30,7 @@ using namespace std::chrono_literals;
 
 VoiceListener::VoiceListener(rclcpp::Node::SharedPtr node, int listen_port)
 : node(node),
-  listener(std::make_shared<housou::StringListener>(listen_port)),
+  listener(std::make_shared<musen::StringListener>(listen_port)),
   command("")
 {
 }

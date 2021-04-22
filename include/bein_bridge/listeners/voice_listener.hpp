@@ -21,7 +21,7 @@
 #ifndef BEIN_BRIDGE__LISTENERS__VOICE_LISTENER_HPP_
 #define BEIN_BRIDGE__LISTENERS__VOICE_LISTENER_HPP_
 
-#include <housou/housou.hpp>
+#include <musen/musen.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
@@ -44,7 +44,7 @@ public:
 private:
   rclcpp::Node::SharedPtr node;
 
-  std::shared_ptr<housou::StringListener> listener;
+  std::shared_ptr<musen::StringListener> listener;
 
   std::string command;
 };

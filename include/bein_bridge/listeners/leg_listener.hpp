@@ -22,7 +22,7 @@
 #define BEIN_BRIDGE__LISTENERS__LEG_LISTENER_HPP_
 
 #include <bein_interfaces/bein_interfaces.hpp>
-#include <housou/housou.hpp>
+#include <musen/musen.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
@@ -50,7 +50,7 @@ private:
   rclcpp::Publisher<PositionMsg>::SharedPtr position_publisher;
   rclcpp::Publisher<OrientationMsg>::SharedPtr orientation_publisher;
 
-  std::shared_ptr<housou::StringListener> listener;
+  std::shared_ptr<musen::StringListener> listener;
 
   double x_position;
   double y_position;

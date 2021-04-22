@@ -16,7 +16,7 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(bein_interfaces REQUIRED)
-find_package(housou REQUIRED)
+find_package(musen REQUIRED)
 find_package(rclcpp REQUIRED)
 
 add_library(${PROJECT_NAME}
@@ -28,7 +28,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
-ament_target_dependencies(${PROJECT_NAME} bein_interfaces housou rclcpp)
+ament_target_dependencies(${PROJECT_NAME} bein_interfaces musen rclcpp)
 
 install(DIRECTORY "include" DESTINATION ".")
 
@@ -54,7 +54,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-ament_export_dependencies(bein_interfaces rclcpp housou)
+ament_export_dependencies(bein_interfaces musen rclcpp)
 ament_export_include_directories("include")
 ament_export_libraries(${PROJECT_NAME})
 ament_package()

@@ -28,7 +28,7 @@ namespace bein_bridge
 
 LegListener::LegListener(rclcpp::Node::SharedPtr node, int listen_port)
 : node(node),
-  listener(std::make_shared<housou::StringListener>(listen_port)),
+  listener(std::make_shared<musen::StringListener>(listen_port)),
   x_position(0.0),
   y_position(0.0),
   z_position(0.0),
