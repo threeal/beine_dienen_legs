@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <bein_bridge/bein_bridge.hpp>
+#include <beine_dienen_legs/bridge.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
@@ -26,7 +26,7 @@
 int main(int argc, char ** argv)
 {
   if (argc < 3) {
-    std::cerr << "Usage: ros2 run bein_bridge bridge <leg_port> <voice_port>" << std::endl;
+    std::cerr << "Usage: ros2 run beine_dienen_legs bridge <leg_port> <voice_port>" << std::endl;
     return 1;
   }
 
@@ -35,7 +35,7 @@ int main(int argc, char ** argv)
 
   rclcpp::init(argc, argv);
 
-  auto bridge = std::make_shared<bein_bridge::Bridge>(
+  auto bridge = std::make_shared<beine_dienen_legs::Bridge>(
     "bein", leg_port, voice_port
   );
 

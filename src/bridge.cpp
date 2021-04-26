@@ -18,12 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <bein_bridge/bridge.hpp>
+#include <beine_dienen_legs/bridge.hpp>
 
 #include <memory>
 #include <string>
 
-namespace bein_bridge
+namespace beine_dienen_legs
 {
 
 using namespace std::chrono_literals;
@@ -109,4 +109,4 @@ rclcpp::Node::SharedPtr Bridge::get_node()
   return node;
 }
 
-}  // namespace bein_bridge
+}  // namespace beine_dienen_legs

@@ -18,12 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <bein_bridge/listeners/leg_listener.hpp>
+#include <beine_dienen_legs/listeners/leg_listener.hpp>
 
 #include <memory>
 #include <string>
 
-namespace bein_bridge
+namespace beine_dienen_legs
 {
 
 LegListener::LegListener(rclcpp::Node::SharedPtr node, int listen_port)
@@ -135,4 +135,4 @@ void LegListener::listen_process()
   }
 }
 
-}  // namespace bein_bridge
+}  // namespace beine_dienen_legs

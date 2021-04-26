@@ -18,20 +18,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef BEIN_BRIDGE__LISTENERS__LEG_LISTENER_HPP_
-#define BEIN_BRIDGE__LISTENERS__LEG_LISTENER_HPP_
+#ifndef BEINE_DIENEN_LEGS__LISTENERS__LEG_LISTENER_HPP_
+#define BEINE_DIENEN_LEGS__LISTENERS__LEG_LISTENER_HPP_
 
-#include <bein_interfaces/bein_interfaces.hpp>
+#include <beine_interfaces/beine_interfaces.hpp>
 #include <musen/musen.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 
-namespace bein_bridge
+namespace beine_dienen_legs
 {
 
-using OrientationMsg = bein_interfaces::msg::Orientation;
-using PositionMsg = bein_interfaces::msg::Position;
+using OrientationMsg = beine_interfaces::msg::Orientation;
+using PositionMsg = beine_interfaces::msg::Position;
 
 class LegListener
 {
@@ -66,6 +66,6 @@ private:
   double d_adc_read;
 };
 
-}  // namespace bein_bridge
+}  // namespace beine_dienen_legs
 
-#endif  // BEIN_BRIDGE__LISTENERS__LEG_LISTENER_HPP_
+#endif  // BEINE_DIENEN_LEGS__LISTENERS__LEG_LISTENER_HPP_

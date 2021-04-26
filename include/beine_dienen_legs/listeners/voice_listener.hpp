@@ -18,12 +18,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef BEIN_BRIDGE__BEIN_BRIDGE_HPP_
-#define BEIN_BRIDGE__BEIN_BRIDGE_HPP_
+#ifndef BEINE_DIENEN_LEGS__LISTENERS__VOICE_LISTENER_HPP_
+#define BEINE_DIENEN_LEGS__LISTENERS__VOICE_LISTENER_HPP_
 
-#include "./listeners/leg_listener.hpp"
-#include "./listeners/voice_listener.hpp"
+#include <musen/musen.hpp>
+#include <rclcpp/rclcpp.hpp>
 
-#include "./bridge.hpp"
+#include <memory>
+#include <string>
 
-#endif  // BEIN_BRIDGE__BEIN_BRIDGE_HPP_
+namespace beine_dienen_legs
+{
+
+class VoiceListener
+{
+public:
+  VoiceListener(rclcpp::Node::SharedPtr node, int listen_port);
+  ~VoiceListener();
+
+  bool connect();
+  bool disconnect();
+
+  void listen_process();
+
+private:
+  rclcpp::Node::SharedPtr node;
+
+  std::shared_ptr<musen::StringListener> listener;
+
+  std::string command;
+};
+
+}  // namespace beine_dienen_legs
+
+#endif  // BEINE_DIENEN_LEGS__LISTENERS__VOICE_LISTENER_HPP_

@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>bein_bridge</name>
+  <name>beine_dienen_legs</name>
   <version>0.1.0</version>
-  <description>ROS 2 bridge for Bein legs reinforcement</description>
+  <description>Dienen's legs implementation of Beine leg support project</description>
   <maintainer email="alfi.maulana.f@gmail.com">Alfi Maulana</maintainer>
   <license>MIT License</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
-  <depend>bein_interfaces</depend>
+  <depend>beine_interfaces</depend>
   <depend>musen</depend>
   <depend>rclcpp</depend>
   <test_depend>ament_lint_auto</test_depend>
