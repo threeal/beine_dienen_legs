@@ -21,59 +21,54 @@
 #include <beine_dienen_legs/bridge.hpp>
 
 #include <memory>
-#include <string>
 
 namespace beine_dienen_legs
 {
 
 using namespace std::chrono_literals;
 
-Bridge::Bridge(std::string node_name, int leg_port, int voice_port)
+Bridge::Bridge(rclcpp::Node::SharedPtr node, int legs_port, int voice_port)
 {
   // Initialize the node
+  this->node = node;
+
+  // Initialize the listen timer
   {
-    node = std::make_shared<rclcpp::Node>(node_name);
+    listen_timer = get_node()->create_wall_timer(
+      10ms, [this]() {
+        legs_listen_process();
+        voice_listen_process();
+      });
+
+    listen_timer->cancel();
+  }
+
+  // Initialize the legs provider
+  legs_provider = std::make_shared<beine_cpp::LegsProvider>(get_node());
+
+  // Initialize the legs listener
+  {
+    legs_listener = std::make_shared<musen::StringListener>(legs_port);
 
     RCLCPP_INFO_STREAM(
-      node->get_logger(),
-      "Node initialized with name " << node->get_name() << "!");
+      get_node()->get_logger(),
+      "Legs listener initialized on port " << legs_listener->get_port() << "!");
+  }
 
-    // Initialize the leg listener
-    {
-      leg_listener = std::make_shared<LegListener>(node, leg_port);
+  // Initialize the voice listener
+  {
+    voice_listener = std::make_shared<musen::StringListener>(voice_port);
 
-      RCLCPP_INFO_STREAM(
-        node->get_logger(),
-        "Leg listener initialized on port " << leg_port << "!");
-    }
-
-    // Initialize the voice listener
-    {
-      voice_listener = std::make_shared<VoiceListener>(node, voice_port);
-
-      RCLCPP_INFO_STREAM(
-        node->get_logger(),
-        "Voice listener initialized on port " << voice_port << "!");
-    }
-
-    // Initialize the listen timer
-    {
-      listen_timer = node->create_wall_timer(
-        10ms, [this]() {
-          leg_listener->listen_process();
-          voice_listener->listen_process();
-        }
-      );
-
-      listen_timer->cancel();
-    }
+    RCLCPP_INFO_STREAM(
+      get_node()->get_logger(),
+      "Voice listener initialized on port " << voice_listener->get_port() << "!");
   }
 }
 
 bool Bridge::connect()
 {
-  if (!leg_listener->connect()) {
-    RCLCPP_ERROR(node->get_logger(), "Failed to connect the leg listener!");
+  if (!legs_listener->connect()) {
+    RCLCPP_ERROR(node->get_logger(), "Failed to connect the legs listener!");
     return false;
   }
 
@@ -89,8 +84,8 @@ bool Bridge::connect()
 
 bool Bridge::disconnect()
 {
-  if (!leg_listener->disconnect()) {
-    RCLCPP_ERROR(node->get_logger(), "Failed to disconnect the leg listener!");
+  if (!legs_listener->disconnect()) {
+    RCLCPP_ERROR(node->get_logger(), "Failed to disconnect the legs listener!");
     return false;
   }
 
@@ -104,9 +99,65 @@ bool Bridge::disconnect()
   return true;
 }
 
-rclcpp::Node::SharedPtr Bridge::get_node()
+rclcpp::Node::SharedPtr Bridge::get_node() const
 {
   return node;
+}
+
+void Bridge::legs_listen_process()
+{
+  auto message = legs_listener->receive(64, ",");
+
+  if (message.size() > 0) {
+    try {
+      size_t i = 0;
+
+      // Update position data
+      {
+        beine_cpp::Position position;
+
+        position.x = stod(message[i++]);
+        position.y = stod(message[i++]);
+        position.z = stod(message[i++]);
+
+        legs_provider->set_position(position);
+      }
+
+      // Update orientation data
+      {
+        beine_cpp::Orientation orientation;
+
+        orientation.x = stod(message[i++]);
+        orientation.y = stod(message[i++]);
+        orientation.z = stod(message[i++]);
+
+        legs_provider->set_orientation(orientation);
+      }
+
+      // Update joints data
+      {
+        beine_cpp::Joints joints;
+
+        joints.left_knee = stod(message[i++]);
+        joints.left_ankle = stod(message[i++]);
+        joints.right_knee = stod(message[i++]);
+        joints.right_ankle = stod(message[i++]);
+
+        legs_provider->set_joints(joints);
+      }
+    } catch (const std::out_of_range & err) {
+      RCLCPP_WARN_STREAM(node->get_logger(), "Not all values are received! " << err.what());
+    }
+  }
+}
+
+void Bridge::voice_listen_process()
+{
+  auto message = voice_listener->receive(32);
+
+  if (message.size() > 0) {
+    legs_provider->set_command(message);
+  }
 }
 
 }  // namespace beine_dienen_legs

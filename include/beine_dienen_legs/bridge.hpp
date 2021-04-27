@@ -21,13 +21,11 @@
 #ifndef BEINE_DIENEN_LEGS__BRIDGE_HPP_
 #define BEINE_DIENEN_LEGS__BRIDGE_HPP_
 
+#include <beine_cpp/beine_cpp.hpp>
+#include <musen/musen.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
-#include <string>
-
-#include "./listeners/leg_listener.hpp"
-#include "./listeners/voice_listener.hpp"
 
 namespace beine_dienen_legs
 {
@@ -35,20 +33,25 @@ namespace beine_dienen_legs
 class Bridge
 {
 public:
-  Bridge(std::string node_name, int leg_port, int voice_port);
+  explicit Bridge(rclcpp::Node::SharedPtr node, int legs_port = 3343, int voice_port = 6343);
 
   bool connect();
   bool disconnect();
 
-  rclcpp::Node::SharedPtr get_node();
+  rclcpp::Node::SharedPtr get_node() const;
 
 private:
+  void legs_listen_process();
+  void voice_listen_process();
+
   rclcpp::Node::SharedPtr node;
 
   rclcpp::TimerBase::SharedPtr listen_timer;
 
-  std::shared_ptr<LegListener> leg_listener;
-  std::shared_ptr<VoiceListener> voice_listener;
+  std::shared_ptr<beine_cpp::LegsProvider> legs_provider;
+
+  std::shared_ptr<musen::StringListener> legs_listener;
+  std::shared_ptr<musen::StringListener> voice_listener;
 };
 
 }  // namespace beine_dienen_legs

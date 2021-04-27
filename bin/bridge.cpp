@@ -23,21 +23,24 @@
 
 #include <memory>
 
+using Bridge = beine_dienen_legs::Bridge;
+
 int main(int argc, char ** argv)
 {
-  if (argc < 3) {
-    std::cerr << "Usage: ros2 run beine_dienen_legs bridge <leg_port> <voice_port>" << std::endl;
-    return 1;
-  }
-
-  int leg_port = atoi(argv[1]);
-  int voice_port = atoi(argv[2]);
-
   rclcpp::init(argc, argv);
 
-  auto bridge = std::make_shared<beine_dienen_legs::Bridge>(
-    "bein", leg_port, voice_port
-  );
+  // Initialize the node
+  auto node = std::make_shared<rclcpp::Node>("dienen_legs_bridge");
+
+  // Initialize the bridge
+  std::shared_ptr<Bridge> bridge;
+  if (argc > 2) {
+    bridge = std::make_shared<Bridge>(node, atoi(argv[1]), atoi(argv[2]));
+  } else if (argc > 1) {
+    bridge = std::make_shared<Bridge>(node, atoi(argv[1]));
+  } else {
+    bridge = std::make_shared<Bridge>(node);
+  }
 
   if (bridge->connect()) {
     rclcpp::spin(bridge->get_node());
