@@ -18,37 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef BEIN_BRIDGE__LISTENERS__VOICE_LISTENER_HPP_
-#define BEIN_BRIDGE__LISTENERS__VOICE_LISTENER_HPP_
+#ifndef BEINE_DIENEN_LEGS__BRIDGE_HPP_
+#define BEINE_DIENEN_LEGS__BRIDGE_HPP_
 
-#include <musen/musen.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 #include <string>
 
-namespace bein_bridge
+#include "./listeners/leg_listener.hpp"
+#include "./listeners/voice_listener.hpp"
+
+namespace beine_dienen_legs
 {
 
-class VoiceListener
+class Bridge
 {
 public:
-  VoiceListener(rclcpp::Node::SharedPtr node, int listen_port);
-  ~VoiceListener();
+  Bridge(std::string node_name, int leg_port, int voice_port);
 
   bool connect();
   bool disconnect();
 
-  void listen_process();
+  rclcpp::Node::SharedPtr get_node();
 
 private:
   rclcpp::Node::SharedPtr node;
 
-  std::shared_ptr<musen::StringListener> listener;
+  rclcpp::TimerBase::SharedPtr listen_timer;
 
-  std::string command;
+  std::shared_ptr<LegListener> leg_listener;
+  std::shared_ptr<VoiceListener> voice_listener;
 };
 
-}  // namespace bein_bridge
+}  // namespace beine_dienen_legs
 
-#endif  // BEIN_BRIDGE__LISTENERS__VOICE_LISTENER_HPP_
+#endif  // BEINE_DIENEN_LEGS__BRIDGE_HPP_
