@@ -18,8 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef BEINE_DIENEN_LEGS__BRIDGE_HPP_
-#define BEINE_DIENEN_LEGS__BRIDGE_HPP_
+#ifndef BEINE_DIENEN_LEGS__CLIENT_HPP_
+#define BEINE_DIENEN_LEGS__CLIENT_HPP_
 
 #include <beine_cpp/beine_cpp.hpp>
 #include <musen/musen.hpp>
@@ -30,10 +30,10 @@
 namespace beine_dienen_legs
 {
 
-class Bridge
+class Client
 {
 public:
-  explicit Bridge(rclcpp::Node::SharedPtr node, int legs_port = 3343, int voice_port = 6343);
+  explicit Client(rclcpp::Node::SharedPtr node, int legs_port = 3343, int voice_port = 6343);
 
   bool connect();
   bool disconnect();
@@ -56,4 +56,4 @@ private:
 
 }  // namespace beine_dienen_legs
 
-#endif  // BEINE_DIENEN_LEGS__BRIDGE_HPP_
+#endif  // BEINE_DIENEN_LEGS__CLIENT_HPP_

@@ -21,7 +21,7 @@ find_package(rclcpp REQUIRED)
 
 install(DIRECTORY "include" DESTINATION ".")
 
-add_library(${PROJECT_NAME} "src/bridge.cpp")
+add_library(${PROJECT_NAME} "src/client.cpp")
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -35,15 +35,15 @@ install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION "lib"
   RUNTIME DESTINATION "bin")
 
-add_executable(bridge "bin/bridge.cpp")
+add_executable(client "bin/client.cpp")
 
-target_include_directories(bridge PUBLIC
+target_include_directories(client PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(bridge ${PROJECT_NAME})
+target_link_libraries(client ${PROJECT_NAME})
 
-install(TARGETS bridge
+install(TARGETS client
   DESTINATION "lib/${PROJECT_NAME}")
 
 if(BUILD_TESTING)

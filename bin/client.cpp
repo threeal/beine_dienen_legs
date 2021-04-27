@@ -18,32 +18,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <beine_dienen_legs/bridge.hpp>
+#include <beine_dienen_legs/client.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 
-using Bridge = beine_dienen_legs::Bridge;
+using Client = beine_dienen_legs::Client;
 
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
 
   // Initialize the node
-  auto node = std::make_shared<rclcpp::Node>("dienen_legs_bridge");
+  auto node = std::make_shared<rclcpp::Node>("dienen_legs_client");
 
   // Initialize the bridge
-  std::shared_ptr<Bridge> bridge;
+  std::shared_ptr<Client> client;
   if (argc > 2) {
-    bridge = std::make_shared<Bridge>(node, atoi(argv[1]), atoi(argv[2]));
+    client = std::make_shared<Client>(node, atoi(argv[1]), atoi(argv[2]));
   } else if (argc > 1) {
-    bridge = std::make_shared<Bridge>(node, atoi(argv[1]));
+    client = std::make_shared<Client>(node, atoi(argv[1]));
   } else {
-    bridge = std::make_shared<Bridge>(node);
+    client = std::make_shared<Client>(node);
   }
 
-  if (bridge->connect()) {
-    rclcpp::spin(bridge->get_node());
+  if (client->connect()) {
+    rclcpp::spin(node);
   } else {
     return 1;
   }

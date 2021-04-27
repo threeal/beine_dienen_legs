@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <beine_dienen_legs/bridge.hpp>
+#include <beine_dienen_legs/client.hpp>
 
 #include <memory>
 
@@ -27,7 +27,7 @@ namespace beine_dienen_legs
 
 using namespace std::chrono_literals;
 
-Bridge::Bridge(rclcpp::Node::SharedPtr node, int legs_port, int voice_port)
+Client::Client(rclcpp::Node::SharedPtr node, int legs_port, int voice_port)
 {
   // Initialize the node
   this->node = node;
@@ -65,7 +65,7 @@ Bridge::Bridge(rclcpp::Node::SharedPtr node, int legs_port, int voice_port)
   }
 }
 
-bool Bridge::connect()
+bool Client::connect()
 {
   if (!legs_listener->connect()) {
     RCLCPP_ERROR(node->get_logger(), "Failed to connect the legs listener!");
@@ -82,7 +82,7 @@ bool Bridge::connect()
   return true;
 }
 
-bool Bridge::disconnect()
+bool Client::disconnect()
 {
   if (!legs_listener->disconnect()) {
     RCLCPP_ERROR(node->get_logger(), "Failed to disconnect the legs listener!");
@@ -99,12 +99,12 @@ bool Bridge::disconnect()
   return true;
 }
 
-rclcpp::Node::SharedPtr Bridge::get_node() const
+rclcpp::Node::SharedPtr Client::get_node() const
 {
   return node;
 }
 
-void Bridge::legs_listen_process()
+void Client::legs_listen_process()
 {
   auto message = legs_listener->receive(64, ",");
 
@@ -151,7 +151,7 @@ void Bridge::legs_listen_process()
   }
 }
 
-void Bridge::voice_listen_process()
+void Client::voice_listen_process()
 {
   auto message = voice_listener->receive(32);
 
