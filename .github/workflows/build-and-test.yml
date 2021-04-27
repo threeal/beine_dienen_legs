@@ -11,8 +11,7 @@ jobs:
       - name: Checking out
         uses: actions/checkout@v2.3.4
       - name: Building and testing
-        uses: ichiro-its/ros2-ci@v0.4.2
+        uses: ichiro-its/ros2-ci@v1.0.0
         with:
           ros2-distro: foxy
-          apt-packages: git
-          pre-build: git clone https://github.com/ichiro-its/musen /ws/musen && git clone https://github.com/threeal/bein_interfaces /ws/bein_interfaces
+          external-repos: ichiro-its/musen#v1.0.0 threeal/beine
