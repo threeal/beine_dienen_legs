@@ -5,7 +5,7 @@
 [![license](https://img.shields.io/github/license/threeal/beine_dienen_legs)](./LICENSE)
 [![test status](https://img.shields.io/github/workflow/status/threeal/beine_dienen_legs/Build%20and%20Test?label=test)](https://github.com/threeal/beine_dienen_legs/actions)
 
-This package provides a [Dienen](https://github.com/threeal/proposal-ta-simulasi-robot) assistive robot's leg support implementation of [Beine](https://github.com/threeal/beine) leg support project.
+This package provides a [Dienen](https://github.com/threeal/proposal-ta-simulasi-robot) assistive robot's leg support client implementation of [Beine](https://github.com/threeal/beine) leg support project.
 
 ## License
 

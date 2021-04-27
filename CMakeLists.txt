@@ -15,22 +15,19 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
-find_package(beine_interfaces REQUIRED)
+find_package(beine_cpp REQUIRED)
 find_package(musen REQUIRED)
 find_package(rclcpp REQUIRED)
 
-add_library(${PROJECT_NAME}
-  "src/listeners/leg_listener.cpp"
-  "src/listeners/voice_listener.cpp"
-  "src/bridge.cpp")
+install(DIRECTORY "include" DESTINATION ".")
+
+add_library(${PROJECT_NAME} "src/client.cpp")
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
-ament_target_dependencies(${PROJECT_NAME} beine_interfaces musen rclcpp)
-
-install(DIRECTORY "include" DESTINATION ".")
+ament_target_dependencies(${PROJECT_NAME} beine_cpp musen rclcpp)
 
 install(TARGETS ${PROJECT_NAME}
   EXPORT export_${PROJECT_NAME}
@@ -38,15 +35,15 @@ install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION "lib"
   RUNTIME DESTINATION "bin")
 
-add_executable(bridge "bin/bridge.cpp")
+add_executable(client "bin/client.cpp")
 
-target_include_directories(bridge PUBLIC
+target_include_directories(client PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(bridge ${PROJECT_NAME})
+target_link_libraries(client ${PROJECT_NAME})
 
-install(TARGETS bridge
+install(TARGETS client
   DESTINATION "lib/${PROJECT_NAME}")
 
 if(BUILD_TESTING)
@@ -54,7 +51,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-ament_export_dependencies(beine_interfaces musen rclcpp)
+ament_export_dependencies(beine_cpp musen rclcpp)
 ament_export_include_directories("include")
 ament_export_libraries(${PROJECT_NAME})
 

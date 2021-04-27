@@ -18,54 +18,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef BEINE_DIENEN_LEGS__LISTENERS__LEG_LISTENER_HPP_
-#define BEINE_DIENEN_LEGS__LISTENERS__LEG_LISTENER_HPP_
-
-#include <beine_interfaces/beine_interfaces.hpp>
-#include <musen/musen.hpp>
+#include <beine_dienen_legs/client.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 
-namespace beine_dienen_legs
+using Client = beine_dienen_legs::Client;
+
+int main(int argc, char ** argv)
 {
+  rclcpp::init(argc, argv);
 
-using OrientationMsg = beine_interfaces::msg::Orientation;
-using PositionMsg = beine_interfaces::msg::Position;
+  // Initialize the node
+  auto node = std::make_shared<rclcpp::Node>("dienen_legs_client");
 
-class LegListener
-{
-public:
-  LegListener(rclcpp::Node::SharedPtr node, int listen_port);
-  ~LegListener();
+  // Initialize the bridge
+  std::shared_ptr<Client> client;
+  if (argc > 2) {
+    client = std::make_shared<Client>(node, atoi(argv[1]), atoi(argv[2]));
+  } else if (argc > 1) {
+    client = std::make_shared<Client>(node, atoi(argv[1]));
+  } else {
+    client = std::make_shared<Client>(node);
+  }
 
-  bool connect();
-  bool disconnect();
+  if (client->connect()) {
+    rclcpp::spin(node);
+  } else {
+    return 1;
+  }
 
-  void listen_process();
+  rclcpp::shutdown();
 
-private:
-  rclcpp::Node::SharedPtr node;
-
-  rclcpp::Publisher<PositionMsg>::SharedPtr position_publisher;
-  rclcpp::Publisher<OrientationMsg>::SharedPtr orientation_publisher;
-
-  std::shared_ptr<musen::StringListener> listener;
-
-  double x_position;
-  double y_position;
-  double z_position;
-
-  double x_orientation;
-  double y_orientation;
-  double z_orientation;
-
-  double a_adc_read;
-  double b_adc_read;
-  double c_adc_read;
-  double d_adc_read;
-};
-
-}  // namespace beine_dienen_legs
-
-#endif  // BEINE_DIENEN_LEGS__LISTENERS__LEG_LISTENER_HPP_
+  return 0;
+}

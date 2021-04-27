@@ -18,34 +18,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <beine_dienen_legs/bridge.hpp>
+#ifndef BEINE_DIENEN_LEGS__CLIENT_HPP_
+#define BEINE_DIENEN_LEGS__CLIENT_HPP_
+
+#include <beine_cpp/beine_cpp.hpp>
+#include <musen/musen.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 
-int main(int argc, char ** argv)
+namespace beine_dienen_legs
 {
-  if (argc < 3) {
-    std::cerr << "Usage: ros2 run beine_dienen_legs bridge <leg_port> <voice_port>" << std::endl;
-    return 1;
-  }
 
-  int leg_port = atoi(argv[1]);
-  int voice_port = atoi(argv[2]);
+class Client
+{
+public:
+  explicit Client(rclcpp::Node::SharedPtr node, int legs_port = 3343, int voice_port = 6343);
 
-  rclcpp::init(argc, argv);
+  bool connect();
+  bool disconnect();
 
-  auto bridge = std::make_shared<beine_dienen_legs::Bridge>(
-    "bein", leg_port, voice_port
-  );
+  rclcpp::Node::SharedPtr get_node() const;
 
-  if (bridge->connect()) {
-    rclcpp::spin(bridge->get_node());
-  } else {
-    return 1;
-  }
+private:
+  void legs_listen_process();
+  void voice_listen_process();
 
-  rclcpp::shutdown();
+  rclcpp::Node::SharedPtr node;
 
-  return 0;
-}
+  rclcpp::TimerBase::SharedPtr listen_timer;
+
+  std::shared_ptr<beine_cpp::LegsProvider> legs_provider;
+
+  std::shared_ptr<musen::StringListener> legs_listener;
+  std::shared_ptr<musen::StringListener> voice_listener;
+};
+
+}  // namespace beine_dienen_legs
+
+#endif  // BEINE_DIENEN_LEGS__CLIENT_HPP_
