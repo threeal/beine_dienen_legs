@@ -7,6 +7,7 @@
   <maintainer email="alfi.maulana.f@gmail.com">Alfi Maulana</maintainer>
   <license>MIT License</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>argparse</depend>
   <depend>beine_cpp</depend>
   <depend>musen</depend>
   <depend>rclcpp</depend>

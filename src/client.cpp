@@ -42,7 +42,7 @@ Client::Client(rclcpp::Node::SharedPtr node, const Client::Options & options)
   }
 
   // Initialize the legs provider
-  legs_provider = std::make_shared<beine_cpp::LegsProvider>(get_node());
+  legs_provider = std::make_shared<beine_cpp::LegsProvider>(get_node(), options);
 
   // Initialize the legs listener
   {

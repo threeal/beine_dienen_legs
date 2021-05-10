@@ -33,7 +33,7 @@ namespace beine_dienen_legs
 class Client : public beine_cpp::LegsNode
 {
 public:
-  struct Options : public LegsNode::Options
+  struct Options : public virtual LegsNode::Options, public virtual beine_cpp::LegsProvider::Options
   {
     int legs_port;
     int voice_port;
