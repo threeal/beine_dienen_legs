@@ -27,11 +27,9 @@ namespace beine_dienen_legs
 
 using namespace std::chrono_literals;
 
-Client::Client(rclcpp::Node::SharedPtr node, int legs_port, int voice_port)
+Client::Client(rclcpp::Node::SharedPtr node, const Client::Options & options)
+: LegsNode(node, options)
 {
-  // Initialize the node
-  this->node = node;
-
   // Initialize the listen timer
   {
     listen_timer = get_node()->create_wall_timer(
@@ -48,7 +46,7 @@ Client::Client(rclcpp::Node::SharedPtr node, int legs_port, int voice_port)
 
   // Initialize the legs listener
   {
-    legs_listener = std::make_shared<musen::StringListener>(legs_port);
+    legs_listener = std::make_shared<musen::StringListener>(options.legs_port);
 
     RCLCPP_INFO_STREAM(
       get_node()->get_logger(),
@@ -57,7 +55,7 @@ Client::Client(rclcpp::Node::SharedPtr node, int legs_port, int voice_port)
 
   // Initialize the voice listener
   {
-    voice_listener = std::make_shared<musen::StringListener>(voice_port);
+    voice_listener = std::make_shared<musen::StringListener>(options.voice_port);
 
     RCLCPP_INFO_STREAM(
       get_node()->get_logger(),
@@ -68,12 +66,12 @@ Client::Client(rclcpp::Node::SharedPtr node, int legs_port, int voice_port)
 bool Client::connect()
 {
   if (!legs_listener->connect()) {
-    RCLCPP_ERROR(node->get_logger(), "Failed to connect the legs listener!");
+    RCLCPP_ERROR(get_node()->get_logger(), "Failed to connect the legs listener!");
     return false;
   }
 
   if (!voice_listener->connect()) {
-    RCLCPP_ERROR(node->get_logger(), "Failed to connect the voice listener!");
+    RCLCPP_ERROR(get_node()->get_logger(), "Failed to connect the voice listener!");
     return false;
   }
 
@@ -85,23 +83,18 @@ bool Client::connect()
 bool Client::disconnect()
 {
   if (!legs_listener->disconnect()) {
-    RCLCPP_ERROR(node->get_logger(), "Failed to disconnect the legs listener!");
+    RCLCPP_ERROR(get_node()->get_logger(), "Failed to disconnect the legs listener!");
     return false;
   }
 
   if (!voice_listener->disconnect()) {
-    RCLCPP_ERROR(node->get_logger(), "Failed to disconnect the voice listener!");
+    RCLCPP_ERROR(get_node()->get_logger(), "Failed to disconnect the voice listener!");
     return false;
   }
 
   listen_timer->cancel();
 
   return true;
-}
-
-rclcpp::Node::SharedPtr Client::get_node() const
-{
-  return node;
 }
 
 void Client::legs_listen_process()
@@ -146,7 +139,13 @@ void Client::legs_listen_process()
         legs_provider->set_joints(joints);
       }
     } catch (const std::out_of_range & err) {
-      RCLCPP_WARN_STREAM(node->get_logger(), "Not all values are received! " << err.what());
+      RCLCPP_WARN_STREAM_THROTTLE(
+        get_node()->get_logger(), *(get_node()->get_clock()), 3000,
+        "Throttled 3s, not all values are received! " << err.what());
+    } catch (const std::invalid_argument & err) {
+      RCLCPP_WARN_STREAM_THROTTLE(
+        get_node()->get_logger(), *(get_node()->get_clock()), 3000,
+        "Throttled 3s, invalid message format! " << err.what());
     }
   }
 }

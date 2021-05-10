@@ -30,21 +30,29 @@
 namespace beine_dienen_legs
 {
 
-class Client
+class Client : public beine_cpp::LegsNode
 {
 public:
-  explicit Client(rclcpp::Node::SharedPtr node, int legs_port = 3343, int voice_port = 6343);
+  struct Options : public LegsNode::Options
+  {
+    int legs_port;
+    int voice_port;
+
+    Options()
+    : legs_port(3343),
+      voice_port(6343)
+    {
+    }
+  };
+
+  explicit Client(rclcpp::Node::SharedPtr node, const Options & options);
 
   bool connect();
   bool disconnect();
 
-  rclcpp::Node::SharedPtr get_node() const;
-
 private:
   void legs_listen_process();
   void voice_listen_process();
-
-  rclcpp::Node::SharedPtr node;
 
   rclcpp::TimerBase::SharedPtr listen_timer;
 

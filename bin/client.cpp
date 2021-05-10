@@ -32,15 +32,17 @@ int main(int argc, char ** argv)
   // Initialize the node
   auto node = std::make_shared<rclcpp::Node>("dienen_legs_client");
 
-  // Initialize the bridge
-  std::shared_ptr<Client> client;
-  if (argc > 2) {
-    client = std::make_shared<Client>(node, atoi(argv[1]), atoi(argv[2]));
-  } else if (argc > 1) {
-    client = std::make_shared<Client>(node, atoi(argv[1]));
-  } else {
-    client = std::make_shared<Client>(node);
+  // Initialize the options
+  beine_dienen_legs::Client::Options options;
+  if (argc > 1) {
+    options.legs_port = atoi(argv[1]);
   }
+  if (argc > 2) {
+    options.voice_port = atoi(argv[2]);
+  }
+
+  // Initialize the bridge
+  auto client = std::make_shared<beine_dienen_legs::Client>(node, options);
 
   if (client->connect()) {
     rclcpp::spin(node);
