@@ -8,6 +8,7 @@
   <license>MIT License</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>beine_cpp</depend>
+  <depend>libargparse-dev</depend>
   <depend>musen</depend>
   <depend>rclcpp</depend>
   <test_depend>ament_lint_auto</test_depend>

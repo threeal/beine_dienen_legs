@@ -18,29 +18,52 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include <argparse/argparse.hpp>
 #include <beine_dienen_legs/client.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <memory>
-
-using Client = beine_dienen_legs::Client;
+#include <string>
 
 int main(int argc, char ** argv)
 {
+  auto program = argparse::ArgumentParser("client", "0.1.0");
+
+  beine_dienen_legs::Client::Options options;
+
+  program.add_argument("--legs-prefix")
+  .help("prefix name for legs's topics and services")
+  .action(
+    [&](const std::string & value) {
+      options.legs_prefix = value;
+    });
+
+  program.add_argument("--legs-port")
+  .help("port number for legs communication")
+  .action(
+    [&](const std::string & value) {
+      options.legs_port = stoi(value);
+    });
+
+  program.add_argument("--voice-port")
+  .help("port number for voice communication")
+  .action(
+    [&](const std::string & value) {
+      options.voice_port = stoi(value);
+    });
+
+  try {
+    program.parse_args(argc, argv);
+  } catch (const std::runtime_error & err) {
+    std::cout << err.what() << std::endl;
+    std::cout << program;
+    return 1;
+  }
+
   rclcpp::init(argc, argv);
 
-  // Initialize the node
-  auto node = std::make_shared<rclcpp::Node>("dienen_legs_client");
-
-  // Initialize the bridge
-  std::shared_ptr<Client> client;
-  if (argc > 2) {
-    client = std::make_shared<Client>(node, atoi(argv[1]), atoi(argv[2]));
-  } else if (argc > 1) {
-    client = std::make_shared<Client>(node, atoi(argv[1]));
-  } else {
-    client = std::make_shared<Client>(node);
-  }
+  auto node = std::make_shared<rclcpp::Node>("client");
+  auto client = std::make_shared<beine_dienen_legs::Client>(node, options);
 
   if (client->connect()) {
     rclcpp::spin(node);
